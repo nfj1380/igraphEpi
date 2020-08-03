@@ -40,8 +40,12 @@ Network_sum <- function(folder_name){
     #------------------------------------------
     #SIR model from igraph. 
     
-    sm2 <- sir(gcc_s, beta=2, gamma=1, no.sim=1000)#R0 of 2 #crashes when I do decimals for beta/gamma
-    sm5 <- sir(gcc_s, beta=5, gamma=1, no.sim=1000)#R0 of 5. Not sure how the number of timesteps are calculated
+    Beta=c(2,5)
+    Gamma=2
+    #This is a bug in igraph. The problem was that some nodes were still being sampled, while there were no nodes actually left to be sampled.
+    sm2 <- sir(gcc_s, beta=Beta[1], gamma=Gamma, no.sim=1000)#R0 of 2 #crashes when I do decimals for beta/gamma
+    # I googled for this bug fix but couldnt find anything (dissapointing we cant use decimals for beat and gamma)
+    sm5 <- sir(gcc_s, beta=Beta[2], gamma=Gamma, no.sim=1000)#R0 of 5. Not sure how the number of timesteps are calculated
     
     time_bins(sm2, middle = TRUE) #sets the time bins to calculate stats
     time_bins(sm5, middle = TRUE)
@@ -65,10 +69,38 @@ Network_sum <- function(folder_name){
     #convert to a laplacian matrix
     M <- laplacian_matrix(gcc_s,sparse = FALSE)
     
+    #Adjacency matrix
+    Adj <-as.matrix(gcc_s[])
+    #Adjacency spectrum
+    Adjacency_spectrum<-eigen(Adj)
+    
+
+    
     #calc eigenvectors
     spec <- eigen(M)
     #take the second smallest eigenvalue
     FiedlerValue<- spec$values[length(spec$value)-1]
+    
+    #Largest value of the adjacency
+    ##This value controls the propagation of infection in SIS/SIR model
+    ### The larger Adj_val the faster the growth of infection at the beginning time
+    Adj_val<-Adjacency_spectrum$values[1]
+    Eigen_central=Adjacency_spectrum$vectors[,ncol(Adjacency_spectrum$vectors)[1]]
+    most_infected_node<-match(max(Eigen_central),Eigen_central)# highest node degree
+    
+    #Note:Probability of infection of nodes depends on V_1(first eigen vector of adjacency matrix)
+    ## so the prob that a node is infected is proportional to its eigen vector centrality (V_1)
+    ## since centrality depends on number of nodes its connected to and how well node are connected
+    
+    
+    
+    #Epidemic threshold
+    ##Infection dies or survives if beta/gamma is < or > Rnot respectively
+    Rnot<-1/Adj_val # spectral of adjacency for undirected network controls the epidemic threshold
+    
+    #
+    
+    #Threshold comparism of 
     
     #Newman's relative Q (from Sah et al 2017) modularity
     
@@ -91,15 +123,16 @@ Network_sum <- function(folder_name){
     trans <- as.data.frame(transitivity(gcc_s, type="global"))
     
     di <- diameter(gcc_s, directed=F, weights=NA)
+    network_size<-vcount(gcc_s)
     
     #Global_summary[1] <- bind_cols(g_names, propI2,propI5, FiedlerValue, mod, deg, cent, trans, di) %>%
     #set_names('g_names')
     
-    Global_summary[[i]] <- c(g_names, propI2,propI5, FiedlerValue, mod, deg, cent, trans, di) 
+    Global_summary[[i]] <- c(g_names, propI2,propI5, FiedlerValue, Adj_val, Rnot,network_size, most_infected_node, mod, deg, cent, trans, di) 
   }
   
   Global_summary <- do.call(rbind, Global_summary)
-  colnames(Global_summary) <- c('Network','Avg_infected_R02','Avg_infected_R05', 'Fiedler', 'Modularity', 'Mean_degree', 'Centrality', 'Transivity', 'Diameter')
+  colnames(Global_summary) <- c('Network','Avg_infected_R02','Avg_infected_R05', 'Fiedler','Adj_val','Rnot','network_size','most_infected_node', 'Modularity', 'Mean_degree', 'Centrality', 'Transivity', 'Diameter')
   Global_summary  <- as.data.frame(Global_summary)
   
   
