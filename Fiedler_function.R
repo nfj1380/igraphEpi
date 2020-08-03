@@ -1,6 +1,6 @@
 
 #-------------------------------------------
-# Calculating network properties for multiple graphs
+# Calculating network properties and proportion infected from multiple graph simulations
 #-------------------------------------------
 #code by Nick Fountain-Jones May/June 2020
 
