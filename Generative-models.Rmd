@@ -58,90 +58,32 @@ plot(f4)
 
 
 ```{r}
-#Spatial
-library(sp)
-#creates a class definition and return agenerator function to creates objectsfrom the class set
-setClass("igraph")
-
-##SpatialLinesNetwork class, consisting of
-
-#1. A SpatialLines object, containing the spatial lines representing the edges
-#2. An igraph object, containing the network topology
-#3. A neighbourhood list nb, containing for each vertex which edges it connets to
-
-setClass("SpatialLinesNetwork", representation(sl = "SpatialLines", g = "igraph", 
-    nb = "list"), validity = function(object) {
-    stopifnot(length(object@sl) == length(E(object@g)))
-    stopifnot(length(object@nb) == length(V(object@g)))
-})
-
-
-#The following creates a SpatialLines object, and converts it into a SpatialLinesNetwork. What it does is is figure out the common points (igraph: vertices) where line segments (igraph: edges) meet.
-
-
-SpatialLinesNetwork = function(sl) {
-    stopifnot(is(sl, "SpatialLines"))
-    if (!is(sl, "SpatialLinesDataFrame")) 
-        sl = new("SpatialLinesDataFrame", sl, data = data.frame(id = 1:length(sl)))
-    if (!all(sapply(sl@lines, length) == 1)) 
-        stop("SpatialLines is not simple: each Lines element should have only a single Line")
-    startEndPoints = function(x) {
-        firstLast = function(L) {
-            cc = coordinates(L)[[1]]
-            rbind(cc[1, ], cc[nrow(cc), ])
-        }
-        do.call(rbind, lapply(x@lines, firstLast))
+#Spatial graph of x,y coordinate join in space
+spatial <- function(n,r) {
+  V <- NULL
+  for (i in 1:n) {
+    x <- runif(1)
+    y <- runif(1)
+    V <- rbind(V,c(i,x,y))
+    coords<<-rbind(coords, c(x,y))
+  }
+  E <- NULL
+  R2 <- r*r;
+  for (i in 1:n) {
+    for (j in 1:n) {
+      if (((V[i,2]-V[j,2])^2 + (V[i,3]-V[j,3])^2) < R2) {
+        E <- as.data.frame(rbind(E,c(i,j)))
+      }
     }
-    s = startEndPoints(sl)
-    zd = zerodist(SpatialPoints(s))
-    pts = 1:nrow(s)
-
-    # the following can't be done vector-wise, there is a progressive effect:
-    if (nrow(zd) > 0) {
-        for (i in 1:nrow(zd)) pts[zd[i, 2]] = pts[zd[i, 1]]
-    }
-    stopifnot(identical(s, s[pts, ]))
-
-    # map to 1:length(unique(pts))
-    pts0 = match(pts, unique(pts))
-    node = rep(1:length(sl), each = 2)
-    nb = lapply(1:length(unique(pts)), function(x) node[which(pts0 == x)])
-    g = graph(pts0, directed = FALSE)  # edges
-    nodes = s[unique(pts), ]
-    g$x = nodes[, 1]  # x-coordinate vertex
-    g$y = nodes[, 2]  # y-coordinate vertex
-    g$n = as.vector(table(pts0))  # nr of edges
-    # line lengths:
-    sl$length = sapply(sl@lines, function(x) LineLength(x@Lines[[1]]))
-    E(g)$weight = sl$length
-    # create list with vertices, starting/stopping for each edge?  add for
-    # each SpatialLines, the start and stop vertex
-    pts2 = matrix(pts0, ncol = 2, byrow = TRUE)
-    sl$start = pts2[, 1]
-    sl$end = pts2[, 2]
-    new("SpatialLinesNetwork", sl = sl, g = g, nb = nb)
+  }
+  return(E)
 }
+coords=NULL
+spatial(10,0.2)
 
+G=graph_from_data_frame(E)%>% as.undirected( "collapse")
+G=igraph::simplify(G,remove.multiple = F, remove.loops = T)
 
-l0 = cbind(c(1, 2), c(0, 0))
-l1 = cbind(c(0, 0, 0), c(0, 1, 2))
-l2 = cbind(c(0, 0, 0), c(2, 3, 4))
-l3 = cbind(c(0, 1, 2), c(2, 2, 3))
-l4 = cbind(c(0, 1, 2), c(4, 4, 3))
-l5 = cbind(c(2, 2), c(0, 3))
-l6 = cbind(c(2, 3), c(3, 4))
-l7=cbind(c(4,5),c(1,2))
-l8=cbind(c(0,1,3),c(3,3,2))
-l9=cbind(c(0, 2, 3), c(5, 5, 4))
-l10 = cbind(c(0, 0, 0), c(0, 1, 3))
-l11 = cbind(c(0, 1, 0), c(3, 4, 5))
-l = list(Lines(list(Line(l0)), "e"), Lines(list(Line(l1)), "a"), Lines(list(Line(l2)), 
-    "b"), Lines(list(Line(l3)), "c"), Lines(list(Line(l4)), "d"), Lines(list(Line(l5)), 
-    "f"), Lines(list(Line(l6)), "g"),Lines(list(Line(l7)), "i"),Lines(list(Line(l8)), "k"), Lines(list(Line(l9)), "h"),Lines(list(Line(l10)), "l"),Lines(list(Line(l11)), "j"))
-sl = SpatialLines(l)
-sln = SpatialLinesNetwork(sl)
-
-#Plot of graph in space
-plot(sln@g)
+plot(G,edge.arrow.size=4,layout=coords)
 
 ```
