@@ -4,7 +4,8 @@
 
 #'@details This function extracts a series of network properties from a list of graph objects that are suitable to be added 
 #'to, for example, predictive models. The network properties include the Fiedler value','Adj_val','Rnot',network size,
-#''most_infected_node', modularity, Mean degree, Centrality, Transivity, Diameter). output is a tidy dataframe. 
+#''most_infected_node', modularity, Mean degree, Centrality, Transivity, Diameter). output is a tidy dataframe.
+#'#Raima need to add some details about the ones you included. 
 
 #' 
 #' @example 
