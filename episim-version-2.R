@@ -20,7 +20,6 @@ episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, propInfect
   E <- G[] #adjacency matrix of graph (network object)
   n <- ncol(E) #number of columns (nodes) in network object
   inf_per_time<-data.frame(matrix(0,nticks+1,n))#progression of infection/transition of state of each node for each time step
-
   # Set initial state  
   # initState is list of initial state of each vertex in G.  E.g., from (1,0,0...0) or (0,1,0,1,0,....)
   if (is.null(initState)) {
@@ -34,10 +33,10 @@ episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, propInfect
   
   #note: there is no recovered node at initial state only susceptible nodes and some infected nodes
   #initial state vector must not contain 2, but only 0 and 1 for the first row
-   #set next state vector initially as initial state.
+  #set next state vector initially as initial state.
   for (tick in 1:nticks) {
     inf_per_time[1,]=current_stat#time 0=initial state
-    # first transition phase: S -> I(
+    # first transition phase: S -> I
     for (i in which(stat==0)) {#for all susceptible nodes (denoted 0) in initial state
       for (j in (1:n)) { # for all other neighbor nodes
         if ((E[i,j]>=1)&(stat[j]==1)&(runif(1)<=beta)) #each infected node infects its nearest neighbor/node it shares a link/edge with, with prob beta
@@ -53,29 +52,35 @@ episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, propInfect
     # second transition phase: I -> R
     for (i in which(stat==1)) {#for all infected nodes in initial state
       if (runif(1)<=gamma) { #compares a randomly generated uniform number to recovery rate
-        nextStat[i] <- 2 #assigns node as recovered if condition above is met and break out of loop else
+        nextStat[i] <- 2 #assigns node as recovered if condition above is met else
       }
       else{
         nextStat[i]<-1 #nodes remain infected 
       }
     }
-
-#for SIR, recovered node do not participate in further disease propagation (permanent immunity)    
+    
+    #for SIR, recovered node do not participate in further disease propagation (permanent immunity)    
     
     stat <- nextStat#assigns states of nodes for each time step as existing state 
     
     inf_per_time[time,] <- stat
     rownames(inf_per_time)=0:nticks#re-order row names from time step 0=initial state
     colnames(inf_per_time)=NULL#make column names as null
-   
     
-     time=time+1
+    
+    time=time+1
     
   }
   
   return (inf_per_time)
+  
 }
 G <- erdos.renyi.game(10, .5,direct=F)    #random graph generated
 episim(G,beta = 0.3)
 
+
+
+
+
+#PLOTTING:     #(apply counts time so remove time column before plotting)
 
