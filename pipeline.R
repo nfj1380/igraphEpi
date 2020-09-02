@@ -16,6 +16,6 @@ source(".getGraphFeatures.R")
 #-----------------------------------------------------------------------------------
 folder_name = c('Networks') #.edges file need to be in the working directory too at this stage.
 
-NetSum <- getGraphFeatures(folder_name)
+NetSum <- getGraphFeatures(network_name = folder_name,  multinetwork = TRUE)
 
 NetSum
