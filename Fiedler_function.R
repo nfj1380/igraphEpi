@@ -21,7 +21,9 @@ Network_sum <- function(folder_name){
   
   for (i in 1:length(networks))
   {
-    dat <- read.table(networks[i]) #haven't dealt with the temporal nature of this yet. Third column appears to be a date...
+    print(networks[i])
+    filename=paste(folder_name, networks[i], sep="/")
+    dat <- read.table(filename) #haven't dealt with the temporal nature of this yet. Third column appears to be a date...
     g <- graph_from_data_frame(dat)%>% as.undirected( "collapse")
     
     #g <- read_graph(networks[4], format = c("edgelist")) %>% as.undirected( "collapse") #seem only to work on smaller graphs?
@@ -35,7 +37,7 @@ Network_sum <- function(folder_name){
     
     #need to remove loops etc
     gcc_s <- igraph::simplify(gccnet, remove.multiple = TRUE, remove.loops = TRUE)
-    #plot(gcc_s)
+    plot(gcc_s,main=networks[i])
     
     #------------------------------------------
     #SIR model from igraph. 
@@ -106,7 +108,7 @@ Network_sum <- function(folder_name){
     
     #detect commnuities and calc relative Newman's Q
     wc <- cluster_walktrap(gcc_s) # This function tries to find densely connected subgraphs, 
-    lc<- cluster_louvain(gcc_s) #this is the method used inSah et al 2017 - allows comparison? 
+    lc <- cluster_louvain(gcc_s) #this is the method used inSah et al 2017 - allows comparison? 
     #also called communities in a graph via random walks.
     
     mod <- modularity(gcc_s, membership(lc))
@@ -117,7 +119,7 @@ Network_sum <- function(folder_name){
     #other network characteristics
     deg <- mean(degree(gcc_s, mode="all", normalized=TRUE)) #normalized currently
     
-    cent <-  eigen_centrality(gcc_s, directed=T, weights=NA)
+    cent <-  eigen_centrality(gcc_s, directed=F, weights=NA)
     cent <- cent$value
     
     trans <- as.data.frame(transitivity(gcc_s, type="global"))
