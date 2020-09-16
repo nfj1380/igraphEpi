@@ -69,8 +69,8 @@ spatial <- function(n,r) {
   }
   E <- NULL
   R2 <- r*r;
-  for (i in 1:n) {
-    for (j in 1:n) {
+  for (i in seq(1,n-1)) {
+    for (j in seq(i+1,n)) {
       if (((V[i,2]-V[j,2])^2 + (V[i,3]-V[j,3])^2) < R2) {
         E <- as.data.frame(rbind(E,c(i,j)))
       }
@@ -79,11 +79,11 @@ spatial <- function(n,r) {
   return(E)
 }
 coords=NULL
-spatial(10,0.2)
+E = spatial(10,0.2)
 
-G=graph_from_data_frame(E)%>% as.undirected( "collapse")
-G=igraph::simplify(G,remove.multiple = F, remove.loops = T)
+G=graph_from_data_frame(E, directed=FALSE)
+# G=igraph::simplify(G,remove.multiple = F, remove.loops = T)
 
-plot(G,edge.arrow.size=4,layout=coords)
+plot(G,layout=coords)
 
 ```

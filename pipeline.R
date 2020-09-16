@@ -8,13 +8,15 @@ library(DiagrammeR)
 library(tidyverse)
 
 # load all function codes. This will disappear when we formally make this a function
-source(".getGraphFeatures.R")
+source("getGraphFeatures.R")
 
 
 #-----------------------------------------------------------------------------------
 #Step 1: Sumamrise network features
 #-----------------------------------------------------------------------------------
 folder_name = c('Networks') #.edges file need to be in the working directory too at this stage.
+
+G <- erdos.renyi.game(20, .10,direct=F)
 
 NetSum <- getGraphFeatures(folder_name)
 
