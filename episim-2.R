@@ -1,18 +1,4 @@
-##
 
-getGraphFeatures <- function() {
-  ## output: data frame
-  
-}
-
-# converting downloaded networks into igraph objects
-# use something liek this to convert:
-#dat <- read.table(networks[i]) #haven't dealt with the temporal nature of this yet. Third column appears to be a date...
-#g <- graph_from_data_frame(dat)%>% as.undirected( "collapse")
-
-G <- graph_from_data_frame(dat)%>% as.undirected( "collapse")
-
-library(igraph)
 #Simple SIR disease simulation
 # Disease status: 0=healthy/susceptible, 1=infected, 2=removed/dead/recovered
 episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, propInfected=0.5) {
@@ -75,7 +61,5 @@ episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, propInfect
   
   return (inf_per_time)
 }
-G <- erdos.renyi.game(10, .5,direct=F)    #random graph generated
-episim(G,beta = 0.3)
 
 

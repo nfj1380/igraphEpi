@@ -12,12 +12,14 @@ source("getGraphFeatures.R")
 
 
 #-----------------------------------------------------------------------------------
-#Step 1: Sumamrise network features
+#Step 1: Summarise network features
 #-----------------------------------------------------------------------------------
 folder_name = c('Networks') #.edges file need to be in the working directory too at this stage.
 
 G <- erdos.renyi.game(20, .10,direct=F)
 
-NetSum <- getGraphFeatures(folder_name)
+NetSum <- getGraphFeatures(network_name = folder_name,  multinetwork = TRUE)
 
-NetSum
+#-----------------------------------------------------------------------------------
+#Step 2: Simulate epidemics over each network
+#-----------------------------------------------------------------------------------
