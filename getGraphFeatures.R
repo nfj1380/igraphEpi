@@ -68,6 +68,8 @@ getGraphFeatures <- function(network_name, multinetwork = TRUE){
     Eigen_central <- Adjacency_spectrum$vectors[,ncol(Adjacency_spectrum$vectors)[1]]
     
     most_infected_node <- match(max(Eigen_central),Eigen_central)# highest node degree
+    #call highest_degree
+    # can we get power of exponential distribution.
     
     #Note:Probability of infection of nodes depends on V_1(first eigen vector of adjacency matrix)
     ## so the prob that a node is infected is proportional to its eigen vector centrality (V_1)
@@ -77,6 +79,7 @@ getGraphFeatures <- function(network_name, multinetwork = TRUE){
     #Epidemic threshold
     ##Infection dies or survives if beta/gamma is < or > Rnot respectively
     Rnot<-1/Adj_val # spectral of adjacency for undirected network controls the epidemic threshold
+    #call threshold
     
     #Threshold comparism of 
     
