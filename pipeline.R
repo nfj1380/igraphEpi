@@ -39,6 +39,7 @@ G <- G_2 # Sample graph to be given
 
 
 
+
 netsim<-episim(G,beta = 0.3,gamma=0.2) # epidemic simulation
 
 netsummary<-epi_summary(netsim) # epidemic summary on a network
