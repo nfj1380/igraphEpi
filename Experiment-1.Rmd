@@ -194,7 +194,7 @@ getGraphFeatures <- function(g){
 
 
 
-```{r}
+```{r echo=FALSE}
 ## Disease simulation
 
 #getGraphFeatures <- function() {
@@ -204,10 +204,8 @@ getGraphFeatures <- function(g){
 
 # converting downloaded networks into igraph objects
 # use something liek this to convert:
-#dat <- read.table(networks[i]) #haven't dealt with the temporal nature of this yet. Third column appears to be a date...
-#g <- graph_from_data_frame(dat)%>% as.undirected( "collapse")
+# dat <- read.table(networks[i]) #haven't dealt with the temporal nature of this yet. Third column appears to be a date...
 
-G <- graph_from_data_frame(dat)%>% as.undirected( "collapse")
 
 library(igraph)
 #Simple SIR disease simulation
@@ -216,7 +214,7 @@ episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, propInfect
   ## G is igraph object
   E <- G[] #adjacency matrix of graph (network object)
   n <- ncol(E) #number of columns (nodes) in network object
-  inf_per_time<-data.frame(matrix(0,nticks+1,n))#progression of infection/transition of state of each node for each time step
+  inf_per_time<-matrix(data=0,(nticks+1),n)#progression of infection/transition of state of each node for each time step
   # Set initial state  
   # initState is list of initial state of each vertex in G.  E.g., from (1,0,0...0) or (0,1,0,1,0,....)
   if (is.null(initState)) {
@@ -273,9 +271,12 @@ episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, propInfect
   
 }
 G <- erdos.renyi.game(10, .5,direct=F)    #random graph generated
-f=episim(G,beta = 0.3)
+f=episim(G,beta = 0.3,gamma=0.2)
 
 
+```
+
+```{r}
 
 ### Making epidemic summary on a network
 
@@ -283,13 +284,16 @@ f=episim(G,beta = 0.3)
   # data frame for counts of state
   # set number of rows and columns
   # column names to SEIR
-
-epi_summary<-function(f){    
-   state_counts=data.frame(matrix(NA,nrow=(nticks+1),ncol=3))
+epi_summary<-function(f){   
+#  if (is.data.frame(f)){
+#    f=as.matrix(f)
+#  }
+   numrows=dim(f)[1]
+   state_counts=matrix(0,nrow=numrows,ncol=3)
    colnames(state_counts)=c("S","I","R")
    
     
-   for (tick in 1:(nticks+1)){
+   for (tick in 1:numrows){
      s = length(which(f[tick,]==0))
      i = length(which(f[tick,]==1))
      r = length(which(f[tick,]==2))
@@ -298,9 +302,9 @@ epi_summary<-function(f){
      
    }
    
-   state_counts <- do.call(rbind, state_counts)
-   state_counts <- as.data.frame(t(state_counts))
-   rownames(state_counts)=0:nticks
+   #state_counts <- do.call(rbind, state_counts)
+   state_counts <- as.data.frame(state_counts)
+   rownames(state_counts)=0:(numrows-1)
    state_counts
 }  
 
@@ -323,16 +327,22 @@ erdos<-function(n,p){
 G_2=erdos(20,.2)
 G_2
 
+```
 
+```{r}
 #[2] simulating SIR process on each simulated graph and extracting the summary
-#sim_all_graphs=NULL
+
+sim_all_graphs=NULL
 summary_all_graphs=NULL
-for (i in 1:N){
-#sim_all_graphs[[i]] = lapply(G_2,episim)
-summary_all_graphs[[i]] = lapply(G_2,epi_summary)
+
+nets_epi_summary<-function(G){
+  for (i in 1:N){
+    sim_all_graphs[[i]] = lapply(G,episim)
+    summary_all_graphs[[i]]=lapply(sim_all_graphs[[i]],epi_summary)
+  }
+  return(summary_all_graphs)
 }
-#sim_all_graphs
-summary_all_graphs
+
 
 #[3] Time to infection of 20% of individual
 ```
