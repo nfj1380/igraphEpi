@@ -1,0 +1,327 @@
+## ----setup, include=FALSE-----------------------------------------------------------
+knitr::opts_chunk$set(echo = TRUE)
+
+
+## -----------------------------------------------------------------------------------
+library(igraph)
+
+
+## -----------------------------------------------------------------------------------
+#Random graph
+erdos<-function(n,p){
+  erdos_graph=sample_gnp(n, p, directed = FALSE, loops = FALSE)
+summary(erdos_graph)
+}
+f1=erdos(100,0.6)
+plot(f1)
+
+
+## -----------------------------------------------------------------------------------
+#Small-world
+sm_world<-function(d,s,n,p){
+  sm_graph=sample_smallworld(d, s, n, p, loops = F, multiple = F)
+summary(sm_graph)
+}
+f2=sm_world(1, 100, 5, 0.05)
+plot(f2)
+
+
+## -----------------------------------------------------------------------------------
+#Lattice graph
+Lattice<-function(d,l){
+  lattice_graph=make_lattice(dim=d,length=l, directed= F, mutual= T, circular = F)
+summary(lattice_graph)
+}
+f3=Lattice(2,5)
+plot(f3)
+
+
+## -----------------------------------------------------------------------------------
+#scale free
+scale_free<-function(n,pw){
+  scale_free_graph=sample_pa(n,pw, directed= F)
+summary(scale_free_graph)
+}
+f4=scale_free(50,1)
+plot(f4)
+
+
+## -----------------------------------------------------------------------------------
+#Spatial graph of x,y coordinate join in space
+spatial <- function(n,r) {
+  v <- NULL
+  for (i in 1:n) {
+    x <- runif(1)
+    y <- runif(1)
+    v <- rbind(v,c(i,x,y))
+    coords<<-rbind(coords, c(x,y))
+  }
+  
+  E <- NULL
+  R2 <- r*r;
+  for (i in seq(1,n-1)) {
+    for (j in seq(i+1,n)) {
+      if (((v[i,2]-v[j,2])^2 + (v[i,3]-v[j,3])^2) < R2) {
+        E <- as.data.frame(rbind(E,c(i,j)))
+      }
+    }
+  }
+  return(E)
+}
+
+coords=NULL
+
+E = spatial(10,0.3)
+
+G=graph_from_data_frame(E, directed=FALSE)
+
+V(G)$color<-"grey"
+G$layout=coords
+
+plot(G,vertex.label=NA,vertex.size=10)
+
+
+## -----------------------------------------------------------------------------------
+
+getGraphFeatures <- function(g){
+  
+#  networks <- list.files(paste(folder_name))
+  
+  Global_summary <- NULL
+  
+    
+    netclust <- clusters(g) #look for subgraphs
+    gcc <- V(g)[netclust$membership == which.max(netclust$csize)]#select vertices from the largest sub-graph
+    #we could do this for other component graphs?
+#    gccnet <- induced.subgraph(g, gcc) #make it a igraph object.
+    
+    #need to remove loops etc
+    gcc_s <- igraph::simplify(g, remove.multiple = TRUE, remove.loops = TRUE)
+    #plot(gcc_s)
+    
+    #network characteristics
+    
+    #convert to a laplacian matrix
+    M <- laplacian_matrix(gcc_s,sparse = FALSE)
+    
+    #Adjacency matrix
+    Adj <-gcc_s[]
+    #Adjacency spectrum
+    Adjacency_spectrum<-eigen(Adj)
+    
+
+    #calc eigenvectors
+    spec <- eigen(M)
+    #take the second smallest eigenvalue
+    FiedlerValue<- spec$values[length(spec$value)-1]
+    
+    #Largest value of the adjacency
+    ##This value controls the propagation of infection in SIS/SIR model
+    ### The larger Adj_val the faster the growth of infection at the beginning time
+    Adj_val<-Adjacency_spectrum$values[1]
+    Eigen_central=Adjacency_spectrum$vectors[,ncol(Adjacency_spectrum$vectors)[1]]
+    most_infected_node<-match(max(Eigen_central),Eigen_central)# highest node degree
+    
+    #Note:Probability of infection of nodes depends on V_1(first eigen vector of adjacency matrix)
+    ## so the prob that a node is infected is proportional to its eigen vector centrality (V_1)
+    ## since centrality depends on number of nodes its connected to and how well node are connected
+    
+    
+    #Epidemic threshold
+    ##Infection dies or survives if beta/gamma is < or > Rnot respectively
+    Rnot<-1/Adj_val # spectral of adjacency for undirected network controls the epidemic threshold
+    
+    #
+    
+    #Threshold comparism of 
+    
+    #Newman's relative Q (from Sah et al 2017) modularity
+    
+    #detect commnuities and calc relative Newman's Q
+    wc <- cluster_walktrap(gcc_s) # This function tries to find densely connected subgraphs, 
+    lc<- cluster_louvain(gcc_s) #this is the method used inSah et al 2017 - allows comparison? 
+    #also called communities in a graph via random walks.
+    
+    mod <- modularity(gcc_s, membership(lc))
+    #max_mod <- 
+    #Qrel <- mod/max_mod #Sah et al normalize modularity this way, but Im not sure why maximum modulairity is the best way to do this
+    #plot(lc,gccnet)  check out the plot if needed
+    
+    #other network characteristics
+    deg <- mean(degree(gcc_s, mode="all", normalized=TRUE)) #normalized currently
+    
+    cent <-  eigen_centrality(gcc_s, directed=T, weights=NA)
+    cent <- cent$value
+    
+    trans <- as.data.frame(transitivity(gcc_s, type="global"))
+    
+    di <- diameter(gcc_s, directed=F, weights=NA)
+    network_size<-vcount(gcc_s)
+    
+    #Global_summary[1] <- bind_cols(g_names, propI2,propI5, FiedlerValue, mod, deg, cent, trans, di) %>%
+    #set_names('g_names')
+    
+    Global_summary <- c(FiedlerValue, Adj_val, Rnot, network_size, most_infected_node, mod, deg, cent, trans, di) 
+  
+  
+  Global_summary <- do.call(rbind, Global_summary)
+  rownames(Global_summary) <- c('Fiedler','Adj_val','Rnot','network_size','most_infected_node', 'Modularity', 'Mean_degree', 'Centrality', 'Transivity', 'Diameter')
+  Global_summary  <- as.data.frame(Global_summary)
+  
+  
+  return(Global_summary)
+}
+
+
+
+## ----echo=FALSE---------------------------------------------------------------------
+## Disease simulation
+
+#getGraphFeatures <- function() {
+  ## output: data frame
+  
+#}
+
+# converting downloaded networks into igraph objects
+# use something liek this to convert:
+# dat <- read.table(networks[i]) #haven't dealt with the temporal nature of this yet. Third column appears to be a date...
+
+
+library(igraph)
+#Simple SIR disease simulation
+# Disease status: 0=healthy/susceptible, 1=infected, 2=removed/dead/recovered
+episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, propInfected=0.5) {
+  ## G is igraph object
+  E <- G[] #adjacency matrix of graph (network object)
+  n <- ncol(E) #number of columns (nodes) in network object
+  inf_per_time<-matrix(data=0,(nticks+1),n)#progression of infection/transition of state of each node for each time step
+  # Set initial state  
+  # initState is list of initial state of each vertex in G.  E.g., from (1,0,0...0) or (0,1,0,1,0,....)
+  if (is.null(initState)) {
+    stat <- rbinom(n,1,propInfected)#set initial state of each nodes if non (note, no recovered node at initial state)
+  } else {
+    stat <- initState #initial existing state.
+  }
+  current_stat=stat
+  nextStat<-rep(0,length(stat))
+  time=2 # since we have nticks+1
+  
+  #note: there is no recovered node at initial state only susceptible nodes and some infected nodes
+  #initial state vector must not contain 2, but only 0 and 1 for the first row
+  #set next state vector initially as initial state.
+  for (tick in 1:nticks) {
+    inf_per_time[1,]=current_stat#time 0=initial state
+    # first transition phase: S -> I
+    for (i in which(stat==0)) {#for all susceptible nodes (denoted 0) in initial state
+      for (j in (1:n)) { # for all other neighbor nodes
+        if ((E[i,j]>=1)&(stat[j]==1)&(runif(1)<=beta)) #each infected node infects its nearest neighbor/node it shares a link/edge with, with prob beta
+        {
+          nextStat[i] <- 1;break#assign node as infected if above condition is met else and break out of loop
+        }
+        else{
+          nextStat[i]<-0 #node remains as susceptible, since not all contact leads to an infection.
+        }
+      }
+    }
+    
+    # second transition phase: I -> R
+    for (i in which(stat==1)) {#for all infected nodes in initial state
+      if (runif(1)<=gamma) { #compares a randomly generated uniform number to recovery rate
+        nextStat[i] <- 2 #assigns node as recovered if condition above is met else
+      }
+      else{
+        nextStat[i]<-1 #nodes remain infected 
+      }
+    }
+    
+    #for SIR, recovered node do not participate in further disease propagation (permanent immunity)    
+    
+    stat <- nextStat#assigns states of nodes for each time step as existing state 
+    
+    inf_per_time[time,] <- stat
+    rownames(inf_per_time)=0:nticks#re-order row names from time step 0=initial state
+    colnames(inf_per_time)=NULL#make column names as null
+    
+    
+    time=time+1
+    
+  }
+  
+  return (inf_per_time)
+  
+}
+#G <- erdos.renyi.game(10, .5,direct=F)    #random graph generated
+#f=episim(G,beta = 0.3,gamma=0.2)
+
+
+
+
+## -----------------------------------------------------------------------------------
+
+### Making epidemic summary on a network
+
+  # make state counts
+  # data frame for counts of state
+  # set number of rows and columns
+  # column names to SEIR
+epi_summary<-function(f){   
+#  if (is.data.frame(f)){
+#    f=as.matrix(f)
+#  }
+   numrows=dim(f)[1]
+   state_counts=matrix(0,nrow=numrows,ncol=3)
+   colnames(state_counts)=c("S","I","R")
+   
+    
+   for (tick in 1:numrows){
+     s = length(which(f[tick,]==0))
+     i = length(which(f[tick,]==1))
+     r = length(which(f[tick,]==2))
+     
+     state_counts[tick,] <- c(s,i,r)
+     
+   }
+   
+   #state_counts <- do.call(rbind, state_counts)
+   state_counts <- as.data.frame(state_counts)
+   rownames(state_counts)=0:(numrows-1)
+   state_counts
+}  
+
+
+
+## ----message=F----------------------------------------------------------------------
+# [1] Replicating the network N times
+set.seed(1)
+N=10
+erdos_graph=list()
+erdos<-function(n,p){
+ for (i in 1:N){
+   erdos_graph[[i]]=sample_gnp(n,p, directed = FALSE, loops =FALSE)
+ }
+  return(erdos_graph)
+}
+
+#Test
+G_2=erdos(20,.2)
+G_2
+
+
+
+## -----------------------------------------------------------------------------------
+#[2] simulating SIR process on each simulated graph and extracting the summary
+
+sim_all_graphs=NULL
+summary_all_graphs=NULL
+
+nets_epi_summary<-function(G){
+  for (i in 1:N){
+    sim_all_graphs[[i]] = lapply(G,episim)
+    summary_all_graphs[[i]]=lapply(sim_all_graphs[[i]],epi_summary)
+  }
+  return(summary_all_graphs)
+}
+
+
+#[3] Time to infection of 20% of individual
+
