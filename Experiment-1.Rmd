@@ -210,7 +210,7 @@ getGraphFeatures <- function(g){
 library(igraph)
 #Simple SIR disease simulation
 # Disease status: 0=healthy/susceptible, 1=infected, 2=removed/dead/recovered
-episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, propInfected=0.5) {
+episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, numInfected=2) {
   ## G is igraph object
   E <- G[] #adjacency matrix of graph (network object)
   n <- ncol(E) #number of columns (nodes) in network object
@@ -218,7 +218,11 @@ episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, propInfect
   # Set initial state  
   # initState is list of initial state of each vertex in G.  E.g., from (1,0,0...0) or (0,1,0,1,0,....)
   if (is.null(initState)) {
-    stat <- rbinom(n,1,propInfected)#set initial state of each nodes if non (note, no recovered node at initial state)
+    infected <- rep(1,numInfected)
+    clear<-rep(0,(n-numInfected))
+    stat<-sample(c(infected, clear), n, replace=FALSE)
+
+#    stat <- rbinom(n,1,propInfected)#set initial state of each nodes if non (note, no recovered node at initial state)
   } else {
     stat <- initState #initial existing state.
   }
@@ -270,8 +274,8 @@ episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, propInfect
   return (inf_per_time)
   
 }
-G <- erdos.renyi.game(10, .5,direct=F)    #random graph generated
-f=episim(G,beta = 0.3,gamma=0.2)
+#G <- erdos.renyi.game(10, .5,direct=F)    #random graph generated
+#f=episim(G,beta = 0.3,gamma=0.2)
 
 
 ```
@@ -324,7 +328,7 @@ erdos<-function(n,p){
 }
 
 #Test
-G_2=erdos(20,.2)
+G_2=erdos(100,.2)
 G_2
 
 ```
