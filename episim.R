@@ -18,8 +18,8 @@ episim <- function(G, nticks=100, beta=0.1, gamma=0.2, sigma=0, initState=NULL, 
   ## extract edges and vertices of G
   # initState is list of initial state of each vertex in G.  E.g., from (1,0,0...0) or (0,1,0,1,0,....)
   E <- G[,] # from igraph -- wow.
-#  E <- as_edgelist(G)
-  print(E)
+  #  E <- as_edgelist(G)
+  #print(E)
   n <- ncol(E)
   cat("n = ", n)
   cat(sprintf("n=%d\n",n))
@@ -57,12 +57,12 @@ episim <- function(G, nticks=100, beta=0.1, gamma=0.2, sigma=0, initState=NULL, 
     }
     
     stat <- nextStat
-    print(length(which(stat==1)))
+ #   print(length(which(stat==1)))
+    print(stat)
   }
 }
 
 G <- erdos.renyi.game(20, .10,direct=F)    #random graph generated
 
 episim(G)
-
-
+ 
