@@ -1,12 +1,12 @@
-## ----setup, include=FALSE-----------------------------------------------------------
+## ----setup, include=FALSE---------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE)
 
 
-## -----------------------------------------------------------------------------------
+## ---------------------------------------------------------------------------
 library(igraph)
 
 
-## -----------------------------------------------------------------------------------
+## ---------------------------------------------------------------------------
 #Random graph
 erdos<-function(n,p){
   erdos_graph=sample_gnp(n, p, directed = FALSE, loops = FALSE)
@@ -16,7 +16,7 @@ f1=erdos(100,0.6)
 plot(f1)
 
 
-## -----------------------------------------------------------------------------------
+## ---------------------------------------------------------------------------
 #Small-world
 sm_world<-function(d,s,n,p){
   sm_graph=sample_smallworld(d, s, n, p, loops = F, multiple = F)
@@ -26,7 +26,7 @@ f2=sm_world(1, 100, 5, 0.05)
 plot(f2)
 
 
-## -----------------------------------------------------------------------------------
+## ---------------------------------------------------------------------------
 #Lattice graph
 Lattice<-function(d,l){
   lattice_graph=make_lattice(dim=d,length=l, directed= F, mutual= T, circular = F)
@@ -36,7 +36,7 @@ f3=Lattice(2,5)
 plot(f3)
 
 
-## -----------------------------------------------------------------------------------
+## ---------------------------------------------------------------------------
 #scale free
 scale_free<-function(n,pw){
   scale_free_graph=sample_pa(n,pw, directed= F)
@@ -46,7 +46,7 @@ f4=scale_free(50,1)
 plot(f4)
 
 
-## -----------------------------------------------------------------------------------
+## ---------------------------------------------------------------------------
 #Spatial graph of x,y coordinate join in space
 spatial <- function(n,r) {
   v <- NULL
@@ -81,7 +81,7 @@ G$layout=coords
 plot(G,vertex.label=NA,vertex.size=10)
 
 
-## -----------------------------------------------------------------------------------
+## ---------------------------------------------------------------------------
 
 getGraphFeatures <- function(g){
   
@@ -174,7 +174,7 @@ getGraphFeatures <- function(g){
 
 
 
-## ----echo=FALSE---------------------------------------------------------------------
+## ----echo=FALSE-------------------------------------------------------------
 ## Disease simulation
 
 #getGraphFeatures <- function() {
@@ -190,7 +190,7 @@ getGraphFeatures <- function(g){
 library(igraph)
 #Simple SIR disease simulation
 # Disease status: 0=healthy/susceptible, 1=infected, 2=removed/dead/recovered
-episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, propInfected=0.5) {
+episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, numInfected=2) {
   ## G is igraph object
   E <- G[] #adjacency matrix of graph (network object)
   n <- ncol(E) #number of columns (nodes) in network object
@@ -198,7 +198,11 @@ episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, propInfect
   # Set initial state  
   # initState is list of initial state of each vertex in G.  E.g., from (1,0,0...0) or (0,1,0,1,0,....)
   if (is.null(initState)) {
-    stat <- rbinom(n,1,propInfected)#set initial state of each nodes if non (note, no recovered node at initial state)
+    infected <- rep(1,numInfected)
+    clear<-rep(0,(n-numInfected))
+    stat<-sample(c(infected, clear), n, replace=FALSE)
+
+#    stat <- rbinom(n,1,propInfected)#set initial state of each nodes if non (note, no recovered node at initial state)
   } else {
     stat <- initState #initial existing state.
   }
@@ -256,7 +260,7 @@ episim <- function(G, nticks=10, beta=0.1, gamma=0.2, initState=NULL, propInfect
 
 
 
-## -----------------------------------------------------------------------------------
+## ---------------------------------------------------------------------------
 
 ### Making epidemic summary on a network
 
@@ -290,7 +294,7 @@ epi_summary<-function(f){
 
 
 
-## ----message=F----------------------------------------------------------------------
+## ----message=F--------------------------------------------------------------
 # [1] Replicating the network N times
 set.seed(1)
 N=10
@@ -308,7 +312,7 @@ G_2
 
 
 
-## -----------------------------------------------------------------------------------
+## ---------------------------------------------------------------------------
 #[2] simulating SIR process on each simulated graph and extracting the summary
 
 sim_all_graphs=NULL
