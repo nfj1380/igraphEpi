@@ -1,16 +1,22 @@
-#[2] simulating SIR process on each simulated graph and extracting the summary
+#[1] simulating a single SIR process on each simulated graph and extracting the summary
 
-sim_all_graphs=NULL
-summary_all_graphs=NULL
-
-nets_epi_summary<-function(G){
-  for (i in 1:N){
-    sim_all_graphs[[i]] = lapply(G,episim)
-    summary_all_graphs[[i]]=lapply(sim_all_graphs[[i]],epi_summary)
-  }
-  return(sim_all_graphs)
-  #  return(summary_all_graphs)
+single_epi_summary<-function(f){
+    summary_all_graphs=lapply(f,epi_summary)
 }
+
+
+#[2] simulating multiple SIR processes on each simulated graph and extracting the summary
+
+summary_all_graphs=NULL
+N=10
+
+nets_epi_summary<-function(f){
+    for (i in 1:N){
+      summary_all_graphs[[i]]=lapply(f,epi_summary)
+    }
+    return(summary_all_graphs)
+}
+
 
 
 #[3] Time to infection of 20% of individual

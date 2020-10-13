@@ -1,4 +1,4 @@
-## Disease simulation
+## [1] simulating a single SIR process on each lists of igraph objects
 
 
 library(igraph)
@@ -110,6 +110,17 @@ for (G in 1:length(Graphs)){
   return(inf_per_time)
 }
 
+
+## [2] simulating multiple SIR process on each lists of igraph objects
+
+episim_all_graphs=list()
+N=10
+nets_episim<-function(G){
+  for (i in 1:N){
+    episim_all_graphs[[i]]=episim(G,propInfected = 0.5)
+  }
+  return(episim_all_graphs)
+}
 
 
 # G=f1

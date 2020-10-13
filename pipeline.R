@@ -8,11 +8,11 @@ library(DiagrammeR)
 library(tidyverse)
 
 # load all function codes. This will disappear when we formally make this a function
-<<<<<<< HEAD
-#source("getGraphFeatures.R")
-=======
-source("getGraphFeatures.R")
->>>>>>> 2efec6358e09a69a9b953184b13cbbb65f805e38
+# <<<<<<< HEAD
+# #source("getGraphFeatures.R")
+# =======
+# source("getGraphFeatures.R")
+# >>>>>>> 2efec6358e09a69a9b953184b13cbbb65f805e38
 
 
 #Nicks experiment
@@ -26,38 +26,119 @@ source("getGraphFeatures.R")
 
 #NetSum
 
+
 #Raima's code
 
-source(knitr::purl("Experiment-1.Rmd", quiet=TRUE))
+## sourcing idealised networks
+source( "random_network.R")
 
-G <- G_2 # Sample graph to be given
-
-# for (i in 1:length(G)){
-#  if (is.connected(G[[i]])){
-#    G=G
-#  }else{
-#    print("G is not connected")
-#  }
-# }
+source( "small-world_network.R")
 
 
-netsim<-episim(G,beta = 0.3,gamma=0.2) # epidemic simulation
+source( "scale-free_network.R")
 
-netsummary<-epi_summary(netsim) # epidemic summary on a network
 
-All_netsummary<-nets_epi_summary(G) # epidemic summary on all networks
+source( "spatial_network.R")
 
+source( "lattice_network.R")
+
+
+
+
+### Epidemic simulation functions
+source( "epi_sim.R")
+
+source( "epi-summary.R")
+
+source( "network_summary.R")
+
+
+# n simulated random network 
+G_2=erdos(10,.2)
+G=G_2
+
+# Single epidemic simulation on all simulated networks of a specific network type
+netsim<-episim(G,beta = 0.3,gamma=0.2,propInfected = 0.5) 
+netsim
+
+# multiple  epidemic simulation on each simulated networks of a specific network type
+All_netsim=nets_episim(G)
+All_netsim
+
+# single epidemic summary on all network
+netsummary<-single_epi_summary(netsim) # epidemic summary on all simulated networks of a specific network type
+netsummary
+
+#multiple eidemic summary on the networks
+All_netsummary=nets_epi_summary(netsim)
 All_netsummary
+##-----------simulations for different network sizes--------
+
+###---Small network size---####
+# n=16
+# r1=erdos(n,.2)
+# s1=sm_world(2, sqrt(n), 5, 0.05)
+# l1=Lattice(2,sqrt(n))
+# sc1=scale_free(n,1)
+# 
+# epidemic_simuations=lapply(G,episim)
+# 
+# for (i in (1:length(epidemic_simuations))){
+#   v[[i]]=apply(epidemic_simuations[[i]]==1, 1, sum)
+#   plot(v[[i]], col=sample(rainbow(10)), type='l', 
+#        main="",sub="",
+#        xlab="Time",ylab="infected ")
+#   par(new=TRUE)
+# }
+# 
+# 
+# 
+# ###---medium network size---####
+# r2=erdos(100,.2)
+# s2=sm_world(1, 100, 5, 0.05)
+# l2=Lattice(2,100)
+# sc2=scale_free(100,1)
+# 
+# #episim(sc2,numInfected = 20)
+# epidemic_simuations_2=lapply(sc2,episim)
+# 
+# for (i in (1:length(epidemic_simuations_2))){
+#   v[[i]]=apply(epidemic_simuations_2[[i]]==1, 1, sum)
+#   plot(v[[i]], col=sample(rainbow(10)), type='l', 
+#        main="",sub="",
+#        xlab="Time",ylab=" ",ylim=c(0,ncol(epidemic_simuations_2[[i]])))
+#   par(new=TRUE)
+# }
+# 
+# ###---large network size---####
+# r3=erdos(1000,.2)
+# s3=sm_world(1, 1000, 5, 0.05)
+# l3=Lattice(2,1000)
+# sc3=scale_free(1000,1)
+# 
+# epidemic_simuations_3=lapply(G,episim(G,numInfected = 200));
+# 
+# for (i in (1:length(epidemic_simuations_3))){
+#   v[[i]]=apply(epidemic_simuations_3[[i]]==1, 1, sum)
+#   plot(v[[i]], col=sample(rainbow(10)), type='l', 
+#        main="",sub="",
+#        xlab="Time",ylab=" ",ylim=c(0,ncol(epidemic_simuations_3[[i]])))
+#   par(new=TRUE)
+# }
+# 
+# 
+# 
 
 
-<<<<<<< HEAD
 
-=======
-G <- erdos.renyi.game(20, .10,direct=F)
-
-NetSum <- getGraphFeatures(network_name = folder_name,  multinetwork = TRUE)
-
-#-----------------------------------------------------------------------------------
-#Step 2: Simulate epidemics over each network
-#-----------------------------------------------------------------------------------
->>>>>>> 2efec6358e09a69a9b953184b13cbbb65f805e38
+# <<<<<<< HEAD
+# 
+# =======
+# G <- erdos.renyi.game(20, .10,direct=F)
+# 
+# NetSum <- getGraphFeatures(network_name = folder_name,  multinetwork = TRUE)
+# 
+# #-----------------------------------------------------------------------------------
+# #Step 2: Simulate epidemics over each network
+# #-----------------------------------------------------------------------------------
+# >>>>>>> 2efec6358e09a69a9b953184b13cbbb65f805e38
