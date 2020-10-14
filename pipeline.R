@@ -53,12 +53,16 @@ source( "epi-summary.R")
 source( "network_summary.R")
 
 
+# one simulated random graph
+F1=erdos(10,0.6)
+b=list()
+b[[1]]=F1
 # n simulated random network 
-G_2=erdos(10,.2)
+G_2=Erdos(10,.2)
 G=G_2
 
 # Single epidemic simulation on all simulated networks of a specific network type
-netsim<-episim(G,beta = 0.3,gamma=0.2,propInfected = 0.5) 
+netsim<-episim(F1,beta = 0.3,gamma=0.2,propInfected = 0.1,numInfected = 2,useProportion = T) 
 netsim
 
 # multiple  epidemic simulation on each simulated networks of a specific network type
