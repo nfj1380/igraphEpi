@@ -52,6 +52,8 @@ source( "epi-summary.R")
 
 source( "network_summary.R")
 
+source("Experiment-3.R")
+
 
 # one simulated random graph
 F1=erdos(10,0.6)
@@ -76,6 +78,26 @@ netsummary
 #multiple eidemic summary on the networks
 All_netsummary=nets_epi_summary(netsim)
 All_netsummary
+
+
+
+###-------Experiment-3-------######
+n=100
+random_graph=erdos(n,.3)
+scalefree_graph=scale_free(n,1)
+spatial_graph=graph_from_data_frame(spatial(n,.4),directed=FALSE)
+small_world=sm_world(1,n,2,.3)##needs attention
+lattice=lattice_net(2, n/2)##needs attention
+
+
+gen_models <- list(random_graph, small_world, lattice, scalefree_graph, spatial_graph) 
+names(gen_models) <- c("random_graph","small_world","lattice","scale_free","spatial")
+
+
+data_frame_of_network_features=Network_Features(gen_models)
+data_frame_of_network_features
+
+
 ##-----------simulations for different network sizes--------
 
 ###---Small network size---####
@@ -134,15 +156,3 @@ All_netsummary
 # 
 
 
-
-# <<<<<<< HEAD
-# 
-# =======
-# G <- erdos.renyi.game(20, .10,direct=F)
-# 
-# NetSum <- getGraphFeatures(network_name = folder_name,  multinetwork = TRUE)
-# 
-# #-----------------------------------------------------------------------------------
-# #Step 2: Simulate epidemics over each network
-# #-----------------------------------------------------------------------------------
-# >>>>>>> 2efec6358e09a69a9b953184b13cbbb65f805e38
