@@ -1,19 +1,20 @@
 #[1] simulating a single SIR process on each simulated graph and extracting the summary
 
-single_epi_summary<-function(f){
-    summary_all_graphs=lapply(f,epi_summary)
-}
-
-
+# single_epi_summary<-function(f){
+#     summary_all_graphs=lapply(f,epi_summary)
+# 
+# return(summary_all_graphs)
+# }
 #[2] simulating multiple SIR processes on each simulated graph and extracting the summary
 
 summary_all_graphs=NULL
-N=10
 
 nets_epi_summary<-function(f){
-    for (i in 1:N){
-      summary_all_graphs[[i]]=lapply(f,epi_summary)
+  for(idx in 1:length(f)){
+    for (rep in 1:length(f)){
+      summary_all_graphs[[rep]]=lapply(f[[idx]],epi_summary)
     }
+  }
     return(summary_all_graphs)
 }
 

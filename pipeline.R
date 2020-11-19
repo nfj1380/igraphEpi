@@ -54,6 +54,11 @@ source( "network_summary.R")
 
 source("Experiment-3.R")
 
+source("Epic.R")
+
+source("graph_features.R")
+
+
 
 # one simulated random graph
 
@@ -64,13 +69,13 @@ s[[1]]=F1
 G_2=Erdos(10,.2,10)
 G=G_2
 
-# Single epidemic simulation on all simulated networks of a specific network type
-netsim<-episim(G,beta = 0.3,gamma=0.2,propInfected = 0.1,numInfected = 2,useProportion = T) 
+# multiple epidemic simulation on all simulated networks of a specific network type
+netsim<-episim(G,beta = 0.5,gamma=0.2,propInfected = 0.1,numInfected = 2,useProportion = T) 
 netsim
 
 # multiple  epidemic simulation on each simulated networks of a specific network type
-All_netsim=nets_episim(m)
-All_netsim
+#All_netsim=nets_episim(G)
+#All_netsim
 
 # single epidemic summary on all network
 netsummary<-single_epi_summary(netsim) # epidemic summary on all simulated networks of a specific network type
@@ -104,10 +109,11 @@ data_frame_of_network_features
 
 
 ###-----Experiment-3 on random network-------
-G_V=Erdos(5,.2,10)
-
-Dat=random_net_features(G_V,4) 
-Dat
+set.seed(25)
+RandomGraph=Erdos(100,.2,100)
+number_of_replicate=10
+GLOBAL_NETWORK_SUMMARY=Epic(RandomGraph,nrep = number_of_replicate)
+GLOBAL_NETWORK_SUMMARY
 
 ##-----------simulations for different network sizes--------
 
