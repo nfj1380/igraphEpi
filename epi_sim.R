@@ -5,7 +5,7 @@ library(igraph)
 #Simple SIR disease simulation
 # Disease status: 0=healthy/susceptible, 1=infected, 2=removed/dead/recovered
 
-episim <- function(Graphs, nticks=10, beta=0.1, gamma=0.2, propInfected=0.1, initState=NULL, numInfected=1, useProportion=F,nrep=NULL){
+episim <- function(Graphs=NULL, nticks=10, beta=0.1, gamma=0.2, propInfected=0.1, initState=NULL, numInfected=1, useProportion=F,nrep=NULL){
   
  # graph_of_one=list() 
  # 

@@ -11,10 +11,10 @@ library(igraph)
 #Simple SIR disease simulation
 # Disease status: 0=healthy/susceptible, 1=infected, 2=removed/dead/recovered
 
-Epic<-function(Graphs, nticks=10, beta=0.1, gamma=0.2, propInfected=0.1, initState=NULL, numInfected=1, useProportion=F,nrep=NULL){
+Epic<-function(Graphs=NULL, nticks=10, beta=0.1, gamma=0.2, propInfected=0.1, initState=NULL, numInfected=1, useProportion=F,nrep=NULL){
       
-      Graph_features=GraphFeatures(Graphs,nrep)
-      Epic_Sim=episim(Graphs,nrep=nrep)#epidemic network simulation
+      Graph_features=GraphFeatures(Graphs,nrep)#Graph-features
+      Epic_Sim=episim(Graphs=Graphs, nticks=nticks, beta=beta, gamma=gamma, propInfected=propInfected, initState=initState, numInfected=numInfected, useProportion=useProportion,nrep=nrep)#epidemic network simulation
       Epic_summary<-nets_epi_summary(Epic_Sim)#epidemic network summary
       
       Max_epid_size=vector(mode="list", length(Epic_summary))#peak/maximum size of infection/epidemic size
@@ -42,7 +42,17 @@ Epic<-function(Graphs, nticks=10, beta=0.1, gamma=0.2, propInfected=0.1, initSta
       Global_network_summary=cbind(Global_network_summary,Graph_features)
 return(Global_network_summary)
 }
-    # Max_epid_size=do.call(rbind,Max_epid_size)
+ 
+
+
+
+
+
+
+
+
+
+   # Max_epid_size=do.call(rbind,Max_epid_size)
     #  time_Max_epid_size=do.call(rbind,time_Max_epid_size)
     #    colnames(Max_epid_size[[idx]][[rep]])=c('Epidemic_size')
     #    colnames(time_Max_epid_size[[idx]][[rep]])=c('Time_to_epidemic_size')

@@ -1,36 +1,36 @@
 library(igraph)
 
-GraphFeatures <- function(G_list,nrep){
+GraphFeatures <- function(Graphs=NULL,nrep=NULL){
 
   Global_summary <- NULL
   
-  network_size=vector(mode = "list", length(G_list))
-  FiedlerValue=vector(mode = "list", length(G_list))
-  Adj_val=vector(mode = "list", length(G_list))
-  Adj=vector(mode = "list", length(G_list))
-  network_size=vector(mode = "list", length(G_list))
-  most_infected_node=vector(mode = "list", length(G_list))
-  mod=vector(mode = "list", length(G_list))
-  deg=vector(mode = "list", length(G_list))
-  cent=vector(mode = "list", length(G_list))
-  trans=vector(mode = "list", length(G_list))
-  di=vector(mode = "list", length(G_list))
-  M=vector(mode = "list", length(G_list));spec=vector(mode = "list", length(G_list)); 
-  Eigen_central=vector(mode = "list", length(G_list));
-  most_infected_nod=vector(mode = "list", length(G_list))
-  Rnot=vector(mode = "list", length(G_list));wc=vector(mode = "list", length(G_list));
-  lc=vector(mode = "list", length(G_list));Adjacency_spectrum=vector(mode = "list", length(G))
+  network_size=vector(mode = "list", length(Graphs))
+  FiedlerValue=vector(mode = "list", length(Graphs))
+  Adj_val=vector(mode = "list", length(Graphs))
+  Adj=vector(mode = "list", length(Graphs))
+  network_size=vector(mode = "list", length(Graphs))
+  most_infected_node=vector(mode = "list", length(Graphs))
+  mod=vector(mode = "list", length(Graphs))
+  deg=vector(mode = "list", length(Graphs))
+  cent=vector(mode = "list", length(Graphs))
+  trans=vector(mode = "list", length(Graphs))
+  di=vector(mode = "list", length(Graphs))
+  M=vector(mode = "list", length(Graphs));spec=vector(mode = "list", length(Graphs)); 
+  Eigen_central=vector(mode = "list", length(Graphs));
+  most_infected_nod=vector(mode = "list", length(Graphs))
+  Rnot=vector(mode = "list", length(Graphs));wc=vector(mode = "list", length(Graphs));
+  lc=vector(mode = "list", length(Graphs));Adjacency_spectrum=vector(mode = "list", length(Graphs))
   
-for (g in 1:length(G_list)){
+for (g in 1:length(Graphs)){
   for(rep in 1:nrep){   
-    network_size[[g]][[rep]]<-vcount(G_list[[g]])
+    network_size[[g]][[rep]]<-vcount(Graphs[[g]])
     #Adjacency matrix
-    Adj[[g]][[rep]]<-as.matrix(G_list[[g]][])
+    Adj[[g]][[rep]]<-as.matrix(Graphs[[g]][])
     #Adjacency spectrum
     Adjacency_spectrum[[g]][[rep]]<-eigen(Adj[[g]][[rep]])
       
     
-    M[[g]][[rep]]<- laplacian_matrix(G_list[[g]],sparse = FALSE)
+    M[[g]][[rep]]<- laplacian_matrix(Graphs[[g]],sparse = FALSE)
     
     spec[[g]][[rep]]<- eigen(M[[g]][[rep]])
 
@@ -45,19 +45,19 @@ for (g in 1:length(G_list)){
 
     Rnot[[g]][[rep]]<-(1/Adj_val[[g]][[rep]]) # spectral of adjacency for undirected network controls the epidemic threshold
 
-    wc[[g]][[rep]]<- cluster_walktrap(G_list[[g]])  
-    lc[[g]][[rep]]<- cluster_louvain(G_list[[g]]) 
+    wc[[g]][[rep]]<- cluster_walktrap(Graphs[[g]])  
+    lc[[g]][[rep]]<- cluster_louvain(Graphs[[g]]) 
     
-    mod[[g]][[rep]]<- modularity(G_list[[g]], membership(lc[[g]][[rep]]))
+    mod[[g]][[rep]]<- modularity(Graphs[[g]], membership(lc[[g]][[rep]]))
      
-    deg[[g]][[rep]]<- mean(degree(G_list[[g]], mode="in"))
+    deg[[g]][[rep]]<- mean(degree(Graphs[[g]], mode="in"))
       
    # cent[[g]][[rep]]<-  eigen_centrality(G_list[[g]], directed=T, weights=NA)
    # cent[[g]][[rep]] <- cent[[g]]$value
     
   #  trans[[g]]<- as.data.frame(transitivity(G_list[[g]], type="global"))
      
-    di[[g]][[rep]]<- diameter(G_list[[g]], directed=F, weights=NA)
+    di[[g]][[rep]]<- diameter(Graphs[[g]], directed=F, weights=NA)
     
     
     Global_summary[[g]]<- as.data.frame(cbind(FiedlerValue[[g]], Adj_val[[g]], network_size[[g]], most_infected_node[[g]], deg[[g]], di[[g]])) 

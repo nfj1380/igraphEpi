@@ -62,57 +62,57 @@ source("graph_features.R")
 
 # one simulated random graph
 
-F1=erdos(100,0.6)
-s=list()
-s[[1]]=F1
-# n simulated random network 
-G_2=Erdos(10,.2,10)
-G=G_2
-
-# multiple epidemic simulation on all simulated networks of a specific network type
-netsim<-episim(G,beta = 0.5,gamma=0.2,propInfected = 0.1,numInfected = 2,useProportion = T) 
-netsim
-
-# multiple  epidemic simulation on each simulated networks of a specific network type
-#All_netsim=nets_episim(G)
-#All_netsim
-
-# single epidemic summary on all network
-netsummary<-single_epi_summary(netsim) # epidemic summary on all simulated networks of a specific network type
-netsummary
-
-#multiple epidemic summary on the networks
-All_netsummary=nets_epi_summary(netsim)
-All_netsummary
-
-
-
-###-------Experiment-3-------######
-n=10
-random_graph=erdos(n,.04)
-lattice=lattice_net(ceiling(sqrt(n)), floor(sqrt(n)))
-scalefree_graph=scale_free(n,1,2)
-spatial_graph=graph_from_data_frame(spatial(n,.12),directed=FALSE)
-
-small_world=sm_world(1,n,2,.3)##needs attention
-
-
-
-gen_models <- list(random_graph, small_world, lattice, scalefree_graph, spatial_graph) 
-names(gen_models) <- c("random_graph","small_world","lattice","scale_free","spatial")
-
-
-data_frame_of_network_features=Network_Features(gen_models)
-data_frame_of_network_features
+# F1=erdos(100,0.6)
+# s=list()
+# s[[1]]=F1
+# # n simulated random network 
+# G_2=Erdos(10,.2,10)
+# G=G_2
+# 
+# # multiple epidemic simulation on all simulated networks of a specific network type
+# netsim<-episim(G,beta = 0.5,gamma=0.2,propInfected = 0.1,numInfected = 2,useProportion = T) 
+# netsim
+# 
+# # multiple  epidemic simulation on each simulated networks of a specific network type
+# #All_netsim=nets_episim(G)
+# #All_netsim
+# 
+# # single epidemic summary on all network
+# netsummary<-single_epi_summary(netsim) # epidemic summary on all simulated networks of a specific network type
+# netsummary
+# 
+# #multiple epidemic summary on the networks
+# All_netsummary=nets_epi_summary(netsim)
+# All_netsummary
+# 
+# 
+# 
+# ###-------Experiment-1-------######
+# n=10
+# random_graph=erdos(n,.04)
+# lattice=lattice_net(ceiling(sqrt(n)), floor(sqrt(n)))
+# scalefree_graph=scale_free(n,1,2)
+# spatial_graph=graph_from_data_frame(spatial(n,.12),directed=FALSE)
+# 
+# small_world=sm_world(1,n,2,.3)##needs attention
 
 
 
+#gen_models <- list(random_graph, small_world, lattice, scalefree_graph, spatial_graph) 
+#names(gen_models) <- c("random_graph","small_world","lattice","scale_free","spatial")
 
-###-----Experiment-3 on random network-------
+
+#data_frame_of_network_features=Network_Features(gen_models)
+#data_frame_of_network_features
+
+
+
+
+###-----Experiment 2 on random network-------
 set.seed(25)
-RandomGraph=Erdos(100,.2,100)
+RandomGraphs=Erdos(10,.7,10)
 number_of_replicate=10
-GLOBAL_NETWORK_SUMMARY=Epic(RandomGraph,nrep = number_of_replicate)
+GLOBAL_NETWORK_SUMMARY=Epic(Graphs = RandomGraphs,nrep = number_of_replicate, beta = 0.7,gamma = .4)
 GLOBAL_NETWORK_SUMMARY
 
 ##-----------simulations for different network sizes--------
