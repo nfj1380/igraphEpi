@@ -2,6 +2,7 @@ library(igraph)
 
 GraphFeatures <- function(Graphs=NULL,nrep=NULL){
 
+  
   Global_summary <- NULL
   
   network_size=vector(mode = "list", length(Graphs))

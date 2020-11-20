@@ -7,6 +7,8 @@ library(tidyverse)
 ## [1] simulating a single SIR process on each lists of igraph objects
 
 
+
+
 library(igraph)
 #Simple SIR disease simulation
 # Disease status: 0=healthy/susceptible, 1=infected, 2=removed/dead/recovered

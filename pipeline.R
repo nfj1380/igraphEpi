@@ -40,7 +40,7 @@ source( "scale-free_network.R")
 
 source( "spatial_network.R")
 
-source( "lattice_network.R")
+source( "lattice_network.R") #tbis isnt working for me
 
 
 
@@ -61,6 +61,7 @@ source("graph_features.R")
 
 
 # one simulated random graph
+
 
 # F1=erdos(100,0.6)
 # s=list()
@@ -104,7 +105,54 @@ source("graph_features.R")
 
 #data_frame_of_network_features=Network_Features(gen_models)
 #data_frame_of_network_features
+# =======
+# F1=erdos(100,0.6)
+# s=list()
+# s[[1]]=F1
+# # n simulated random network 
+# G_2=Erdos(10,.2,10)
+# G=G_2
+# 
+# # multiple epidemic simulation on all simulated networks of a specific network type
+# netsim<-episim(G,beta = 0.5,gamma=0.2,propInfected = 0.1,numInfected = 2,useProportion = T) 
+# netsim
+# 
+# # multiple  epidemic simulation on each simulated networks of a specific network type
+# #All_netsim=nets_episim(G)
+# #All_netsim
+# 
+# # single epidemic summary on all network
+# netsummary<-single_epi_summary(netsim) # epidemic summary on all simulated networks of a specific network type
+# netsummary
+# 
+# #multiple epidemic summary on the networks
+# All_netsummary=nets_epi_summary(netsim)
+# All_netsummary
+# 
+# 
+# 
+# ###-------Experiment-3-------######
+# n=10
+# random_graph=erdos(n,.04)
+# 
+# lat=lattice(ceiling(sqrt(n)), floor(sqrt(n))) #neede lattice? instead of lattice_net
+# 
+# scalefree_graph=scale_free(n,1) #Error in scale_free(n, 1, 2) : unused argument (2) #removed 2 and it worked?
+# 
+# spatial_graph=graph_from_data_frame(spatial(n,.12),directed=FALSE)
+# 
+# small_world=sm_world(1,n,2,.3)##needs attention #NFJ: What's wrong? Worked OK I think
+# 
 
+# 
+# gen_models <- list(random_graph, small_world, lat, scalefree_graph, spatial_graph) 
+# names(gen_models) <- c("random_graph","small_world","lattice","scale_free","spatial")
+
+
+# data_frame_of_network_features=Network_Features(gen_models) # NFJ: this error: Error in vcount(g[[i]]) : Not a graph object 
+# data_frame_of_network_features
+# >>>>>>> 85c38d1944351d7baeb0339d358092860b4a6f91
+# 
 
 
 
