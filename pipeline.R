@@ -40,7 +40,7 @@ source( "scale-free_network.R")
 
 source( "spatial_network.R")
 
-source( "lattice_network.R")
+source( "lattice_network.R") #tbis isnt working for me
 
 
 
@@ -90,19 +90,22 @@ All_netsummary
 ###-------Experiment-3-------######
 n=10
 random_graph=erdos(n,.04)
-lattice=lattice_net(ceiling(sqrt(n)), floor(sqrt(n)))
-scalefree_graph=scale_free(n,1,2)
+
+lat=lattice(ceiling(sqrt(n)), floor(sqrt(n))) #neede lattice? instead of lattice_net
+
+scalefree_graph=scale_free(n,1) #Error in scale_free(n, 1, 2) : unused argument (2) #removed 2 and it worked?
+
 spatial_graph=graph_from_data_frame(spatial(n,.12),directed=FALSE)
 
-small_world=sm_world(1,n,2,.3)##needs attention
+small_world=sm_world(1,n,2,.3)##needs attention #NFJ: What's wrong? Worked OK I think
 
 
 
-gen_models <- list(random_graph, small_world, lattice, scalefree_graph, spatial_graph) 
+gen_models <- list(random_graph, small_world, lat, scalefree_graph, spatial_graph) 
 names(gen_models) <- c("random_graph","small_world","lattice","scale_free","spatial")
 
 
-data_frame_of_network_features=Network_Features(gen_models)
+data_frame_of_network_features=Network_Features(gen_models) # NFJ: this error: Error in vcount(g[[i]]) : Not a graph object 
 data_frame_of_network_features
 
 
