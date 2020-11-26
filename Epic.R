@@ -31,6 +31,7 @@ Epic<-function(Graphs=NULL, nticks=10, beta=0.1, gamma=0.2, propInfected=0.1, in
           Global_network_summary[[idx]]=as.data.frame(cbind(time_Max_epid_size[[idx]],Max_epid_size[[idx]]))
         
         
+          
         colnames(Global_network_summary[[idx]])=c('Time_to_epidemic_size','Epidemic_size')
         
         Global_network_summary[[(idx-1)*nrep + sim_num]]$"ngraph"= idx
