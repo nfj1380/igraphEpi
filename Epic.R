@@ -24,22 +24,23 @@ Epic<-function(Graphs=NULL, nticks=10, beta=0.1, gamma=0.2, propInfected=0.1, in
       ##Calculate all other stuffs on inf_per_time   
   Global_network_summary=NULL 
       for (idx in 1:length(Epic_summary)) { 
-        for (rep in 1:nrep){
-          Max_epid_size[[idx]][[rep]]<-c(max(Epic_summary[[idx]][[rep]]$I))
-          time_Max_epid_size[[idx]][[rep]]<-which.max(Epic_summary[[idx]][[rep]]$I)-1#timestep start from 0
+        for (sim_num in 1:nrep){
+          Max_epid_size[[idx]][[sim_num]]<-c(max(Epic_summary[[idx]][[sim_num]]$I))
+          time_Max_epid_size[[idx]][[sim_num]]<-which.max(Epic_summary[[idx]][[sim_num]]$I)-1#timestep start from 0
         
           Global_network_summary[[idx]]=as.data.frame(cbind(time_Max_epid_size[[idx]],Max_epid_size[[idx]]))
         
         
         colnames(Global_network_summary[[idx]])=c('Time_to_epidemic_size','Epidemic_size')
         
+        Global_network_summary[[(idx-1)*nrep + sim_num]]$"ngraph"= idx
         
         } 
         Global_network_summary[[idx]]$"numb_of_rep"= 1:nrep
       }
-  
+      
       Global_network_summary=do.call(rbind,Global_network_summary)
-      column_order=c('numb_of_rep','Time_to_epidemic_size','Epidemic_size')
+      column_order=c('numb_graph','numb_of_rep','Time_to_epidemic_size','Epidemic_size')
       Global_network_summary=Global_network_summary[, column_order]
       Global_network_summary=cbind(Global_network_summary,Graph_features)
 return(Global_network_summary)
