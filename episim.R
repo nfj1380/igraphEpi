@@ -18,11 +18,16 @@ episim <- function(G, nticks=100, beta=0.1, gamma=0.2, sigma=0, initState=NULL, 
   ## extract edges and vertices of G
   # initState is list of initial state of each vertex in G.  E.g., from (1,0,0...0) or (0,1,0,1,0,....)
   E <- G[,] # from igraph -- wow.
+<<<<<<< HEAD
   #  E <- as_edgelist(G)
   #print(E)
+=======
+#  E <- as_edgelist(G)
+#  print(E)
+>>>>>>> 2efec6358e09a69a9b953184b13cbbb65f805e38
   n <- ncol(E)
-  cat("n = ", n)
-  cat(sprintf("n=%d\n",n))
+#  cat("n = ", n)
+#  cat(sprintf("n=%d\n",n))
   if (is.null(initState)) {
     stat <- rbinom(n,1,propInfected)
   } else {
@@ -57,7 +62,11 @@ episim <- function(G, nticks=100, beta=0.1, gamma=0.2, sigma=0, initState=NULL, 
     }
     
     stat <- nextStat
+<<<<<<< HEAD
  #   print(length(which(stat==1)))
+=======
+#    print(length(which(stat==1)))
+>>>>>>> 2efec6358e09a69a9b953184b13cbbb65f805e38
     print(stat)
   }
 }

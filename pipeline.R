@@ -158,7 +158,7 @@ source("graph_features.R")
 
 ###-----Experiment 2 on random network-------
 set.seed(25)
-RandomGraphs=Erdos(10,.7,10)
+RandomGraphs=Erdos(20,.07,2)
 number_of_replicate=10
 GLOBAL_NETWORK_SUMMARY=Epic(Graphs = RandomGraphs,nrep = number_of_replicate, beta = 0.7,gamma = .4)
 GLOBAL_NETWORK_SUMMARY

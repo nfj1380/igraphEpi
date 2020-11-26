@@ -37,14 +37,13 @@ G$layout=coords
 
 ## (2) Replicating the Spatial network N times
 set.seed(1)
-N=10
 spatial_net=list()
-SPATIAL<-function(n,r){
+SPATIAL<-function(n,r,N){
   for (i in 1:N){
     spatial_net[[i]]=spatial(n,r)
   }
   return(spatial_net)
 }
-h1=SPATIAL(20,.4)
-h2=graph_from_data_frame(h1[[10]], directed=FALSE)
-plot(h2)
+# h1=SPATIAL(20,.4)
+# h2=graph_from_data_frame(h1[[10]], directed=FALSE)
+# #plot(h2)
