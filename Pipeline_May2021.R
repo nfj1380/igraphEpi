@@ -9,7 +9,8 @@ library(EpiModel)
 library(intergraph)
 library(DiagrammeR)
 library(tidyverse)
-
+library(doParallel)
+library(foreach)
 source('simPathE.R')
 source('countStates.R ') 
 
@@ -18,16 +19,23 @@ Network_sum <- function(folder_name){
   
   networks <- list.files(paste(folder_name))
   
-  Global_summary <- NULL
+  #Global_summary <- NULL
   
+  cl <- makePSOCKcluster(2)
+  registerDoParallel(cl)
   
-  for (i in 1:length(networks))
+  #for (i in 1:length(networks))##
+  Global_summary  <- foreach( i = 1:3, combine=rbind,  .packages=c('tidyverse', 'igraph','intergraph', 'DiagrammeR')) %dopar% 
+ 
   {
+    source('simPathE.R')
+    source('countStates.R ') 
+    
     print(networks[i]) ##
     filename=paste(folder_name, networks[i], sep="/") #
     
     dat <- read.table(filename) #haven't dealt with the temporal nature of this yet. Third column appears to be a date...
-    g <- graph_from_data_frame(dat)%>% as.undirected( "collapse")
+    g <- igraph::graph_from_data_frame(dat) %>%  as.undirected( "collapse")
     
     #g <- read_graph(networks[4], format = c("edgelist")) %>% as.undirected( "collapse") #seem only to work on smaller graphs?
     #one edge for each pair of connect vertices
@@ -81,26 +89,27 @@ Network_sum <- function(folder_name){
     
 #------------------------------------------------------------------------------------------------------------
     #beta =0.1 tests (more infectious)
+  
     
     inf_data_beta0.1 <- list()
-    
+
        for(j in(1:nsim)){
-      
-        sm01 <- simPathE(gcc_s, nTicks=100, beta=0.1, gamma=0.4, propInfected=0.05, initialState=NULL,nInfected=1,  useProportion=T) 
-        countEachState <- countStates(DF=sm01, states=c(0:2))  
-    
+
+        sm01 <- simPathE(gcc_s, nTicks=100, beta=0.1, gamma=0.4, propInfected=0.05, initialState=NULL,nInfected=1,  useProportion=T)
+        countEachState <- countStates(DF=sm01, states=c(0:2))
+
          TwoPcInfected <-  sum(sm01[1,])+ceiling((vcount(gcc_s)/100)*2) #Sah et al use 2% threshold for pathogen invasion
-    
+
         invasion_time <- which(countEachState[,2] >= TwoPcInfected )[1] #this selects the first time the number of infects
-       # 2% of the population 
+       # 2% of the population
         #Need to exclude the first infection we simulate (hence the +1)
-    
+
         prop_infected <- max(countEachState[,2])/vcount(gcc_s)
-    
+
         inf_data_beta0.1[[j]] <-  c(invasion_time=invasion_time, prop_infected=prop_infected)
-    
+
     }
-    
+
     #collect data
     complete_data_beta0.1 <- as.data.frame(do.call(rbind,  inf_data_beta0.1))
     complete_data_noNA_beta0.1 <-   complete_data_beta0.1[complete.cases(complete_data_beta0.1 ),] #NA mean it never took off
@@ -174,20 +183,27 @@ Network_sum <- function(folder_name){
     #Global_summary[1] <- bind_cols(g_names, propI2,propI5, FiedlerValue, mod, deg, cent, trans, di) %>%
     #set_names('g_names')
     
-  Global_summary[[i]] <- c(Network=g_names,  avg_invasion_time_beta0.1=avg_invasion_time_beta0.1,
-                             avg_invasion_time_beta0.05=avg_invasion_time_beta0.05,  avg_prop_infected_beta0.1=avg_prop_infected_beta0.1, 
-                             avg_prop_infected_beta0.05=avg_prop_infected_beta0.05,   no_invasion_beta0.1=no_invasion_beta0.1,   
+    data.frame(Network=g_names,  avg_invasion_time_beta0.1=avg_invasion_time_beta0.1,
+                           avg_invasion_time_beta0.05=avg_invasion_time_beta0.05,  avg_prop_infected_beta0.1=avg_prop_infected_beta0.1, 
+                            avg_prop_infected_beta0.05=avg_prop_infected_beta0.05,   no_invasion_beta0.1=no_invasion_beta0.1,   
                              no_invasion_beta0.05=no_invasion_beta0.05, Fiedler=  FiedlerValue, Adj_val=Adj_val, Rnot=Rnot,network_size=network_size, 
                              most_infected_node=most_infected_node, Modularity=mod, Mean_degree=deg, Centrality=cent,
                              Transivity=trans, Diameter=di) 
+  #Global_summary[[i]] 
+  
+  #Global_summary_list 
+    
   }
   
-  Global_summary <- do.call(rbind, Global_summary)
+Global_summary <- do.call(rbind, Global_summary)
  # colnames(Global_summary) <- c('Network','Avg_infected_R02','Avg_infected_R05', 'Fiedler','Adj_val','Rnot','network_size','most_infected_node', 'Modularity', 'Mean_degree', 'Centrality', 'Transivity', 'Diameter')
-  Global_summary  <- as.data.frame(Global_summary)
-  
+# Global_summary  <- as.data.frame(Global_summary)
   
   return(Global_summary)
+  
+  parallel::stopCluster(cl)
+  
+
 }
 
 #########################################################################################
@@ -197,5 +213,5 @@ Network_sum <- function(folder_name){
 #create graph object
 folder_name = c('Networks') #.edges file need to be in the working directory too at this stage.
 
-test <- Network_sum(folder_name)
+test <- Network_sum(folder_name) #failed at the baboon network 26
 
