@@ -4,15 +4,15 @@
 #-------------------------------------------
 #code by Nick Fountain-Jones May/June 2021
 
-library(igraph)
-library(EpiModel)
-library(intergraph)
-library(DiagrammeR)
-library(tidyverse)
-library(doParallel)
-library(foreach)
-source('simPathE.R')
-source('countStates.R ') 
+#library(igraph)
+#library(EpiModel)
+#library(intergraph)
+#library(DiagrammeR)
+#library(tidyverse)
+#library(doParallel)
+#library(foreach)
+#source('simPathE.R')
+#source('countStates.R ') 
 
 #this function calculates prevalence ofan SIR pathogen network as well as the corresponding network characteristics
 Network_sum <- function(folder_name){
@@ -21,22 +21,44 @@ Network_sum <- function(folder_name){
   
   #Global_summary <- NULL
   
-  cl <- makePSOCKcluster(2)
+  #make sure all network object in the folder can load.
+  
+  netcheck <- function(networks ){ 
+                        filename=paste(folder_name, networks, sep="/") #
+                        
+                        dat <- read.table(filename) 
+                        options(show.error.messages = TRUE)
+                        print(filename)
+                        gtry <- try(igraph::graph_from_data_frame(dat) %>%  as.undirected( "collapse"))
+                        if(is( gtry,"try-error")) {print('graph error')}
+                        else { print('graph ok')}
+                        }
+
+ #g <- netcheck(networks[540])
+  checkGraphTable <- networks %>%  map( netcheck)
+  
+  #make multicore
+  cl <- makePSOCKcluster(5)
   registerDoParallel(cl)
   
+  # removing mammalia-voles-kcs-trapping-01 as there is a strange eror with this one
+  
+  #will thow an eror if there is anything wrong with any graph in the folder
+  }  
   #for (i in 1:length(networks))##
-  Global_summary  <- foreach( i = 1:3, combine=rbind,  .packages=c('tidyverse', 'igraph','intergraph', 'DiagrammeR')) %dopar% 
+  Global_summary  <- foreach( i = 1:length(networks), combine=rbind,  .packages=c('tidyverse', 'igraph','intergraph', 'DiagrammeR')) %dopar% 
  
   {
     source('simPathE.R')
     source('countStates.R ') 
     
-    print(networks[i]) ##
+    print(networks[i])
     filename=paste(folder_name, networks[i], sep="/") #
     
     dat <- read.table(filename) #haven't dealt with the temporal nature of this yet. Third column appears to be a date...
     g <- igraph::graph_from_data_frame(dat) %>%  as.undirected( "collapse")
-    
+   
+  
     #g <- read_graph(networks[4], format = c("edgelist")) %>% as.undirected( "collapse") #seem only to work on smaller graphs?
     #one edge for each pair of connect vertices
     g_names <- gsub(".edges","",networks[i]) ##
@@ -188,14 +210,18 @@ Network_sum <- function(folder_name){
                             avg_prop_infected_beta0.05=avg_prop_infected_beta0.05,   no_invasion_beta0.1=no_invasion_beta0.1,   
                              no_invasion_beta0.05=no_invasion_beta0.05, Fiedler=  FiedlerValue, Adj_val=Adj_val, Rnot=Rnot,network_size=network_size, 
                              most_infected_node=most_infected_node, Modularity=mod, Mean_degree=deg, Centrality=cent,
-                             Transivity=trans, Diameter=di) 
+                             Transivity=trans, Diameter=di)
+  }
+    
+      #write.table(file="globalData.csv",append=TRUE,sep=",",col.names=TRUE,row.names=TRUE)
   #Global_summary[[i]] 
   
   #Global_summary_list 
-    
-  }
+    #write.table(Global_summary[,,i],file="globalData.i.csv",append=TRUE,sep=",",col.names=TRUE,row.names=TRUE) 
   
 Global_summary <- do.call(rbind, Global_summary)
+
+
  # colnames(Global_summary) <- c('Network','Avg_infected_R02','Avg_infected_R05', 'Fiedler','Adj_val','Rnot','network_size','most_infected_node', 'Modularity', 'Mean_degree', 'Centrality', 'Transivity', 'Diameter')
 # Global_summary  <- as.data.frame(Global_summary)
   
@@ -213,5 +239,13 @@ Global_summary <- do.call(rbind, Global_summary)
 #create graph object
 folder_name = c('Networks') #.edges file need to be in the working directory too at this stage.
 
-test <- Network_sum(folder_name) #failed at the baboon network 26
+test <- Network_sum(folder_name)
 
+str(test)
+saveRDS(test,'graphdf' )
+
+
+dfNumeric <- test %>% select(-Network)
+
+write.csv(x=test, file='NetworkDataSim.csv')
+DataExplorer::create_report(dfNumeric )
